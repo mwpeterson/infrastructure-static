@@ -106,7 +106,7 @@ resource "aws_s3_bucket_policy" "replica" {
           "Sid": "1",
           "Effect": "Allow",
           "Principal": {
-              "AWS": "${aws_cloudfront_origin_access_identity.origin_access_identity.iam_arn}"
+              "AWS": "${aws_cloudfront_origin_access_identity.origin_access.iam_arn}"
           },
           "Action": "s3:GetObject",
           "Resource": "arn:aws:s3:::${aws_s3_bucket.replica.id}/*"
@@ -178,7 +178,7 @@ resource "aws_s3_bucket_policy" "bucket" {
           "Sid": "1",
           "Effect": "Allow",
           "Principal": {
-              "AWS": "${aws_cloudfront_origin_access_identity.origin_access_identity.iam_arn}"
+              "AWS": "${aws_cloudfront_origin_access_identity.origin_access.iam_arn}"
           },
           "Action": "s3:GetObject",
           "Resource": "arn:aws:s3:::${aws_s3_bucket.bucket.id}/*"
