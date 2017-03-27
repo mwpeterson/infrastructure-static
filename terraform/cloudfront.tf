@@ -11,7 +11,6 @@ resource "aws_cloudfront_distribution" "pinkimpact" {
   origin {
     domain_name = "${aws_s3_bucket.bucket.bucket_domain_name}"
     origin_id   = "${var.repo}-${var.env}"
-    origin_path = "/${data.aws_acm_certificate.pinkimpact.domain}"
 
     s3_origin_config {
       origin_access_identity = "${aws_cloudfront_origin_access_identity.origin_access.cloudfront_access_identity_path}"
@@ -21,7 +20,6 @@ resource "aws_cloudfront_distribution" "pinkimpact" {
   origin {
     domain_name = "${aws_s3_bucket.replica.bucket_domain_name}"
     origin_id   = "${var.repo}-${var.env}-replica"
-    origin_path = "/${data.aws_acm_certificate.pinkimpact.domain}"
 
     s3_origin_config {
       origin_access_identity = "${aws_cloudfront_origin_access_identity.origin_access.cloudfront_access_identity_path}"
