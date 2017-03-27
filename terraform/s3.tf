@@ -95,7 +95,8 @@ resource "aws_s3_bucket" "replica" {
 
 resource "aws_s3_bucket_policy" "replica" {
   provider = "aws.east2"
-  bucket = "${aws_s3_bucket.replica.id}"
+  bucket   = "${aws_s3_bucket.replica.id}"
+
   policy = <<POLICY
 {
   "Version": "2008-10-17",
@@ -105,7 +106,7 @@ resource "aws_s3_bucket_policy" "replica" {
           "Sid": "1",
           "Effect": "Allow",
           "Principal": {
-              "AWS": "arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity E1CLQXHBGWI67M"
+              "AWS": "${aws_cloudfront_origin_access_identity.origin_access_identity.iam_arn}"
           },
           "Action": "s3:GetObject",
           "Resource": "arn:aws:s3:::${aws_s3_bucket.replica.id}/*"
@@ -166,7 +167,8 @@ resource "aws_s3_bucket" "bucket" {
 
 resource "aws_s3_bucket_policy" "bucket" {
   provider = "aws.west2"
-  bucket = "${aws_s3_bucket.bucket.id}"
+  bucket   = "${aws_s3_bucket.bucket.id}"
+
   policy = <<POLICY
 {
   "Version": "2008-10-17",
@@ -176,7 +178,7 @@ resource "aws_s3_bucket_policy" "bucket" {
           "Sid": "1",
           "Effect": "Allow",
           "Principal": {
-              "AWS": "arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity E1CLQXHBGWI67M"
+              "AWS": "${aws_cloudfront_origin_access_identity.origin_access_identity.iam_arn}"
           },
           "Action": "s3:GetObject",
           "Resource": "arn:aws:s3:::${aws_s3_bucket.bucket.id}/*"
@@ -185,4 +187,3 @@ resource "aws_s3_bucket_policy" "bucket" {
 }
 POLICY
 }
-
