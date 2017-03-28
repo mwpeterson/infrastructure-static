@@ -1,0 +1,9 @@
+version: 0.1
+
+phases:
+  post_build:
+    commands:
+      - aws s3 sync output s3://pinkimpact-static-dev --delete
+artifacts:
+  files:
+    - check/index.html
