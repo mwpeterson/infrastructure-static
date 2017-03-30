@@ -193,10 +193,8 @@ resource "aws_codebuild_project" "pinkimpact" {
 
   environment {
     compute_type = "BUILD_GENERAL1_SMALL"
-
-    #    image        = "aws/codebuild/ruby:2.2.5"
-    image = "aws/codebuild/eb-ruby-2.2-amazonlinux-64:2.1.6"
-    type  = "LINUX_CONTAINER"
+    image        = "aws/codebuild/eb-ruby-2.2-amazonlinux-64:2.1.6"
+    type         = "LINUX_CONTAINER"
   }
 
   source {
