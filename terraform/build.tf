@@ -28,13 +28,13 @@ resource "aws_iam_role_policy" "codepipeline_policy" {
     {
       "Effect":"Allow",
       "Action": [
-        "s3:GetObject",
-        "s3:GetObjectVersion",
-        "s3:GetBucketVersioning"
+        "s3:Get*",
+        "s3:List*",
+        "s3:PutObject"
       ],
       "Resource": [
-        "${aws_s3_bucket.bucket.arn}",
-        "${aws_s3_bucket.bucket.arn}/*"
+        "${aws_s3_bucket.codepipeline.arn}",
+        "${aws_s3_bucket.codepipeline.arn}/*"
       ]
     },
     {
@@ -50,13 +50,42 @@ resource "aws_iam_role_policy" "codepipeline_policy" {
 EOF
 }
 
+resource "aws_s3_bucket" "codepipeline" {
+  provider = "aws.west2"
+  bucket   = "gatewaychurch-infrastructure-codepipeline"
+  acl      = "private"
+
+  versioning {
+    enabled = true
+  }
+
+  lifecycle_rule {
+    prefix                                 = ""
+    enabled                                = true
+    abort_incomplete_multipart_upload_days = 7
+
+    noncurrent_version_expiration {
+      days = 7
+    }
+
+    expiration {
+      days = 7
+    }
+  }
+
+  tags {
+    env       = "${var.env}"
+    terraform = true
+  }
+}
+
 resource "aws_codepipeline" "pinkimpact" {
   provider = "aws.west2"
-  name     = "codepipeline-pinkimpact"
+  name     = "pinkimpact"
   role_arn = "${aws_iam_role.codepipeline_role.arn}"
 
   artifact_store {
-    location = "${aws_s3_bucket.bucket.id}"
+    location = "${aws_s3_bucket.codepipeline.id}"
     type     = "S3"
   }
 
@@ -64,7 +93,7 @@ resource "aws_codepipeline" "pinkimpact" {
     name = "Source"
 
     action {
-      name             = "github-checkout"
+      name             = "Source"
       category         = "Source"
       owner            = "ThirdParty"
       provider         = "GitHub"
@@ -137,7 +166,8 @@ resource "aws_iam_policy" "codebuild_policy" {
         "logs:PutLogEvents",
         "s3:Get*",
         "s3:List*",
-        "s3:PutObject"
+        "s3:PutObject",
+        "s3:DeleteObject"
       ]
     }
   ]
@@ -153,25 +183,25 @@ resource "aws_iam_policy_attachment" "codebuild_policy_attachment" {
 
 resource "aws_codebuild_project" "pinkimpact" {
   provider      = "aws.west2"
-  name          = "codebuild-pinkimpact"
+  name          = "pinkimpact"
   build_timeout = "5"
   service_role  = "${aws_iam_role.codebuild_role.arn}"
 
   artifacts {
-    type     = "S3"
-    location = "${aws_s3_bucket.bucket.id}"
+    type = "NO_ARTIFACTS"
   }
 
   environment {
     compute_type = "BUILD_GENERAL1_SMALL"
-    image        = "aws/codebuild/eb-ruby-2.3-amazonlinux-64:2.1.6"
-    type         = "LINUX_CONTAINER"
+
+    #    image        = "aws/codebuild/ruby:2.2.5"
+    image = "aws/codebuild/eb-ruby-2.2-amazonlinux-64:2.1.6"
+    type  = "LINUX_CONTAINER"
   }
 
   source {
-    type      = "GITHUB"
-    location  = "https://github.com/gateway-church/pinkimpact-static.git"
-    buildspec = "buildspec.yml"
+    type     = "GITHUB"
+    location = "https://github.com/gateway-church/pinkimpact-static.git"
 
     auth = {
       type = "OAUTH"
