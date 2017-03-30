@@ -36,15 +36,15 @@ resource "aws_route53_health_check" "bucket" {
   provider              = "aws.east1"
   fqdn                  = "${aws_s3_bucket.bucket.bucket_domain_name}"
   type                  = "HTTP"
-port = 80
+  port                  = 80
   failure_threshold     = 3
   request_interval      = 30
-  resource_path         = "/check/index.html"
+  resource_path         = "/index.html"
   cloudwatch_alarm_name = "${aws_cloudwatch_metric_alarm.healthcheck_bucket.alarm_name}"
 
   tags = {
-    env       = "${var.env}"
-    terraform = true
+    environment = "${var.environment}"
+    terraform   = true
   }
 }
 
@@ -52,14 +52,14 @@ resource "aws_route53_health_check" "replica" {
   provider              = "aws.east1"
   fqdn                  = "${aws_s3_bucket.replica.bucket_domain_name}"
   type                  = "HTTP"
-port = 80
+  port                  = 80
   failure_threshold     = 3
   request_interval      = 30
-  resource_path         = "/check/index.html"
+  resource_path         = "/index.html"
   cloudwatch_alarm_name = "${aws_cloudwatch_metric_alarm.healthcheck_replica.alarm_name}"
 
   tags = {
-    env       = "${var.env}"
-    terraform = true
+    environment = "${var.environment}"
+    terraform   = true
   }
 }

@@ -66,15 +66,15 @@ resource "aws_iam_policy_attachment" "replication" {
 
 resource "aws_s3_bucket" "replica" {
   provider = "aws.east2"
-  bucket   = "${var.repo}-${var.env}-replica"
+  bucket   = "${var.project}-${var.environment}-replica"
 
   versioning {
     enabled = true
   }
 
   tags {
-    env       = "${var.env}"
-    terraform = true
+    environment = "${var.environment}"
+    terraform   = true
   }
 }
 
@@ -103,7 +103,7 @@ POLICY
 
 resource "aws_s3_bucket" "bucket" {
   provider = "aws.west2"
-  bucket   = "${var.repo}-${var.env}"
+  bucket   = "${var.project}-${var.environment}"
   acl      = "private"
 
   versioning {
@@ -134,7 +134,7 @@ resource "aws_s3_bucket" "bucket" {
     role = "${aws_iam_role.replication.arn}"
 
     rules {
-      id     = "${var.repo}-${var.env}"
+      id     = "${var.project}-${var.environment}"
       prefix = ""
       status = "Enabled"
 
@@ -145,8 +145,8 @@ resource "aws_s3_bucket" "bucket" {
   }
 
   tags {
-    env       = "${var.env}"
-    terraform = true
+    environment = "${var.environment}"
+    terraform   = true
   }
 }
 

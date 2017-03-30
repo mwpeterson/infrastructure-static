@@ -74,14 +74,14 @@ resource "aws_s3_bucket" "codepipeline" {
   }
 
   tags {
-    env       = "${var.env}"
-    terraform = true
+    environment = "${var.environment}"
+    terraform   = true
   }
 }
 
-resource "aws_codepipeline" "pinkimpact" {
+resource "aws_codepipeline" "pipeline" {
   provider = "aws.west2"
-  name     = "pinkimpact"
+  name     = "${var.project}-${var.environment}"
   role_arn = "${aws_iam_role.codepipeline_role.arn}"
 
   artifact_store {
@@ -98,11 +98,11 @@ resource "aws_codepipeline" "pinkimpact" {
       owner            = "ThirdParty"
       provider         = "GitHub"
       version          = "1"
-      output_artifacts = ["${var.repo}"]
+      output_artifacts = ["${var.project}-${var.environment}"]
 
       configuration {
         Owner      = "gateway-church"
-        Repo       = "${var.repo}"
+        Repo       = "${var.project}"
         Branch     = "master"
         OAuthToken = "${var.github_oauth_token}"
       }
@@ -117,11 +117,11 @@ resource "aws_codepipeline" "pinkimpact" {
       category        = "Build"
       owner           = "AWS"
       provider        = "CodeBuild"
-      input_artifacts = ["${var.repo}"]
+      input_artifacts = ["${var.project}-${var.environment}"]
       version         = "1"
 
       configuration {
-        ProjectName = "${aws_codebuild_project.pinkimpact.name}"
+        ProjectName = "${aws_codebuild_project.project.name}"
       }
     }
   }
@@ -181,9 +181,9 @@ resource "aws_iam_policy_attachment" "codebuild_policy_attachment" {
   roles      = ["${aws_iam_role.codebuild_role.id}"]
 }
 
-resource "aws_codebuild_project" "pinkimpact" {
+resource "aws_codebuild_project" "project" {
   provider      = "aws.west2"
-  name          = "pinkimpact"
+  name          = "${var.project}-${var.environment}"
   build_timeout = "5"
   service_role  = "${aws_iam_role.codebuild_role.arn}"
 
@@ -199,7 +199,7 @@ resource "aws_codebuild_project" "pinkimpact" {
 
   source {
     type     = "GITHUB"
-    location = "https://github.com/gateway-church/pinkimpact-static.git"
+    location = "${var.github_project_url}"
 
     auth = {
       type = "OAUTH"
@@ -207,7 +207,7 @@ resource "aws_codebuild_project" "pinkimpact" {
   }
 
   tags {
-    env       = "${var.env}"
-    terraform = true
+    environment = "${var.environment}"
+    terraform   = true
   }
 }
