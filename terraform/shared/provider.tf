@@ -22,7 +22,3 @@ data "terraform_remote_state" "global" {
     region = "us-west-2"
   }
 }
-
-data "aws_route53_zone" "domain" {
-  name = "${var.zone}"
-}
