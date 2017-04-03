@@ -1,91 +1,10 @@
-resource "aws_iam_role" "codepipeline_role" {
-  name = "codepipeline-role-"
-
-  assume_role_policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Principal": {
-        "Service": "codepipeline.amazonaws.com"
-      },
-      "Action": "sts:AssumeRole"
-    }
-  ]
-}
-EOF
-}
-
-resource "aws_iam_role_policy" "codepipeline_policy" {
-  name = "codepipeline_policy"
-  role = "${aws_iam_role.codepipeline_role.id}"
-
-  policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect":"Allow",
-      "Action": [
-        "s3:Get*",
-        "s3:List*",
-        "s3:PutObject"
-      ],
-      "Resource": [
-        "${aws_s3_bucket.codepipeline.arn}",
-        "${aws_s3_bucket.codepipeline.arn}/*"
-      ]
-    },
-    {
-      "Effect": "Allow",
-      "Action": [
-        "codebuild:BatchGetBuilds",
-        "codebuild:StartBuild"
-      ],
-      "Resource": "*"
-    }
-  ]
-}
-EOF
-}
-
-resource "aws_s3_bucket" "codepipeline" {
-  provider = "aws.west2"
-  bucket   = "gatewaychurch-infrastructure-codepipeline"
-  acl      = "private"
-
-  versioning {
-    enabled = true
-  }
-
-  lifecycle_rule {
-    prefix                                 = ""
-    enabled                                = true
-    abort_incomplete_multipart_upload_days = 7
-
-    noncurrent_version_expiration {
-      days = 7
-    }
-
-    expiration {
-      days = 7
-    }
-  }
-
-  tags {
-    environment = "${var.environment}"
-    terraform   = true
-  }
-}
-
 resource "aws_codepipeline" "pipeline" {
   provider = "aws.west2"
   name     = "${var.project}-${var.environment}"
-  role_arn = "${aws_iam_role.codepipeline_role.arn}"
+  role_arn = "${data.terraform_remote_state.global.codepipeline_role.arn}"
 
   artifact_store {
-    location = "${aws_s3_bucket.codepipeline.id}"
+    location = "${data.terraform_remote_state.global.codepipeline_bucket.id}"
     type     = "S3"
   }
 
@@ -127,65 +46,11 @@ resource "aws_codepipeline" "pipeline" {
   }
 }
 
-resource "aws_iam_role" "codebuild_role" {
-  name = "codebuild-role-"
-
-  assume_role_policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Principal": {
-        "Service": "codebuild.amazonaws.com"
-      },
-      "Action": "sts:AssumeRole"
-    }
-  ]
-}
-EOF
-}
-
-resource "aws_iam_policy" "codebuild_policy" {
-  name        = "codebuild-policy"
-  path        = "/service-role/"
-  description = "Policy used in trust relationship with CodeBuild"
-
-  policy = <<POLICY
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Resource": [
-        "*"
-      ],
-      "Action": [
-        "logs:CreateLogGroup",
-        "logs:CreateLogStream",
-        "logs:PutLogEvents",
-        "s3:Get*",
-        "s3:List*",
-        "s3:PutObject",
-        "s3:DeleteObject"
-      ]
-    }
-  ]
-}
-POLICY
-}
-
-resource "aws_iam_policy_attachment" "codebuild_policy_attachment" {
-  name       = "codebuild-policy-attachment"
-  policy_arn = "${aws_iam_policy.codebuild_policy.arn}"
-  roles      = ["${aws_iam_role.codebuild_role.id}"]
-}
-
 resource "aws_codebuild_project" "project" {
   provider      = "aws.west2"
   name          = "${var.project}-${var.environment}"
   build_timeout = "5"
-  service_role  = "${aws_iam_role.codebuild_role.arn}"
+  service_role  = "${data.terraform_remote_state.global.codebuild_role.arn}"
 
   artifacts {
     type = "NO_ARTIFACTS"
@@ -200,6 +65,22 @@ resource "aws_codebuild_project" "project" {
   source {
     type     = "GITHUB"
     location = "${var.github_project_url}"
+
+    buildspec = <<BUILDSPEC
+version: 0.1
+
+phases: 
+  install: 
+    commands: 
+      - gem install jekyll bundler
+      - bundle install
+  build: 
+    commands: 
+      - bundle exec jekyll build
+  post_build: 
+    commands: 
+      - aws s3 sync --delete --cache-control max-age=604800 _site s3://${aws_s3_bucket.bucket.id}
+BUILDSPEC
 
     auth = {
       type = "OAUTH"
