@@ -1,7 +1,8 @@
 resource "aws_s3_bucket" "bucket" {
-  provider = "aws.west2"
-  bucket   = "${var.domain}"
-  acl      = "public-read"
+  provider      = "aws.west2"
+  bucket        = "${var.domain}"
+  acl           = "public-read"
+  force_destroy = true
 
   website {
     index_document = "index.html"

@@ -1,25 +1,5 @@
-resource "aws_iam_role" "replication" {
-  name = "tf-iam-role-replication-static"
-
-  assume_role_policy = <<POLICY
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Action": "sts:AssumeRole",
-      "Principal": {
-        "Service": "s3.amazonaws.com"
-      },
-      "Effect": "Allow",
-      "Sid": ""
-    }
-  ]
-}
-POLICY
-}
-
 resource "aws_iam_policy" "replication" {
-  name = "tf-iam-role-policy-replication-static"
+  name = "${var.project}-${var.environment}"
 
   policy = <<POLICY
 {
@@ -59,14 +39,16 @@ POLICY
 }
 
 resource "aws_iam_policy_attachment" "replication" {
-  name       = "tf-iam-role-attachment-replication-static"
-  roles      = ["${aws_iam_role.replication.name}"]
+  name       = "${var.project}-${var.environment}"
   policy_arn = "${aws_iam_policy.replication.arn}"
+  roles      = ["${data.terraform_remote_state.global.replication_role.id}"]
 }
 
 resource "aws_s3_bucket" "replica" {
-  provider = "aws.east2"
-  bucket   = "${var.project}-${var.environment}-replica"
+  provider      = "aws.east2"
+  bucket        = "${var.project}-${var.environment}-replica"
+  acl           = "private"
+  force_destroy = true
 
   versioning {
     enabled = true
@@ -102,9 +84,10 @@ POLICY
 }
 
 resource "aws_s3_bucket" "bucket" {
-  provider = "aws.west2"
-  bucket   = "${var.project}-${var.environment}"
-  acl      = "private"
+  provider      = "aws.west2"
+  bucket        = "${var.project}-${var.environment}"
+  acl           = "private"
+  force_destroy = true
 
   versioning {
     enabled = true
@@ -131,7 +114,7 @@ resource "aws_s3_bucket" "bucket" {
   }
 
   replication_configuration {
-    role = "${aws_iam_role.replication.arn}"
+    role = "${data.terraform_remote_state.global.replication_role.arn}"
 
     rules {
       id     = "${var.project}-${var.environment}"
