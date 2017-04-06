@@ -20,7 +20,7 @@ resource "aws_codepipeline" "pipeline" {
       output_artifacts = ["${var.project}-${var.environment}"]
 
       configuration {
-        Owner = "gateway-church"
+        Owner      = "gateway-church"
         Repo       = "${var.project}"
         Branch     = "develop"
         OAuthToken = "${var.github_oauth_token}"
@@ -80,6 +80,7 @@ phases:
   post_build: 
     commands: 
       - aws s3 sync --delete --cache-control max-age=604800 _site s3://${aws_s3_bucket.bucket.id}
+      - aws sns publish --topic-arn ${data.terraform_remote_state.global.codebuild_topic.arn} --subject '${var.project} deployed to ${var.environment}' --message '<a href="https://console.aws.amazon.com/cloudwatch/home?region=$${AWS_REGION}#logStream:group=/aws/codebuild/${var.project}-${var.environment}">Logs</a>' 
 BUILDSPEC
 
     auth = {

@@ -130,7 +130,9 @@ resource "aws_iam_policy" "codebuild_policy" {
         "s3:Get*",
         "s3:List*",
         "s3:PutObject",
-        "s3:DeleteObject"
+        "s3:DeleteObject",
+        "sns:SendMessage",
+        "sns:Publish"
       ]
     }
   ]
