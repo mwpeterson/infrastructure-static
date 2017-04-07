@@ -29,7 +29,7 @@ EOF
 resource "aws_lambda_function" "codebuild" {
   provider      = "aws.west2"
   function_name = "codebuild-sns2slack"
-  handler       = "exports.handler"
+  handler       = "index.handler"
   role          = "${aws_iam_role.codebuild.arn}"
   runtime       = "nodejs6.10"
   filename      = "../../../sns2slack-codebuild/dist/sns2slack-codebuild_latest.zip"
