@@ -79,7 +79,7 @@ phases:
   post_build: 
     commands: 
       - aws s3 sync --delete --cache-control max-age=604800 _site s3://${aws_s3_bucket.bucket.id}
-      - aws sns publish --topic-arn ${data.terraform_remote_state.global.codebuild_topic.arn} --subject '${var.project} deployed to ${var.environment}' --message "<a href='https://console.aws.amazon.com/cloudwatch/home?region=$${AWS_REGION}#logStream:group=/aws/codebuild/${var.project}-${var.environment}'>Logs</a>" 
+      - aws sns publish --topic-arn ${data.terraform_remote_state.global.codebuild_topic.arn} --subject '${var.project} deployed to ${var.environment}' --message "<https://console.aws.amazon.com/cloudwatch/home?region=$${AWS_REGION}#logStream:group=/aws/codebuild/${var.project}-${var.environment}|view logs>" 
 BUILDSPEC
   }
 
