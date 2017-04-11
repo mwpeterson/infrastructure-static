@@ -93,7 +93,7 @@ terraform apply plan
 If terraform prompts for variables, abort the operation and review the settings in terraform.tfvars.json and set whichever variables are missing
 
 
-### Deploying / Publishing
+## Deploying 
 
 `infrastructure-static` configures AWS CodePipeline and CodeBuild to deploy changes pushed to `develop` to the `stage` environment and to deploy changes pushed to `master` to the `prod` environment
 
@@ -101,3 +101,7 @@ If terraform prompts for variables, abort the operation and review the settings 
 ## Contributing
 
 To contribute, please fork the repository and use a feature branch. Pull requests are warmly welcome.
+
+## TODO
+- Automate ecfg steps with a [Makefile](https://mtpereira.com/terraform-ejson.html)
+
