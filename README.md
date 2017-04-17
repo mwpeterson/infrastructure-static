@@ -95,7 +95,7 @@ If terraform prompts for variables, abort the operation and review the settings 
 
 ## Deploying 
 
-`infrastructure-static` configures AWS CodePipeline and CodeBuild to deploy changes pushed to `develop` to the `stage` environment and to deploy changes pushed to `master` to the `prod` environment
+`infrastructure-static` configures AWS CodePipeline and CodeBuild to deploy changes pushed to `develop` to the `stage` environment and to deploy changes pushed to `master` to the `prod` environment. The CodePipeline will be triggered when the infrastructure is built, so that the latest version of the site will be deployed.
 
 
 ## Contributing
