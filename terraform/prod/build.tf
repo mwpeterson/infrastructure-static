@@ -44,6 +44,10 @@ resource "aws_codepipeline" "pipeline" {
       }
     }
   }
+
+  provisioner "local-exec" {
+    command = "aws codepipeline start-pipeline-execution --name ${aws_codepipeline.pipeline.name}"
+  }
 }
 
 resource "aws_codebuild_project" "project" {
