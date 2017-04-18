@@ -1,0 +1,31 @@
+{
+  "name": "cf_s3_failover",
+  "version": "0.0.1",
+  "description": "Switch Cloudfront distribution behavior to replica S3 in event of S3izure",
+  "main": "index.js",
+  "dependencies": {
+    "dotenv": "^4.0.0",
+    "request": "^2.60.0"
+  },
+  "bundleDependencies": [
+    "request"
+  ],
+  "devDependencies": {
+    "grunt": ">= 0.4.0",
+    "grunt-aws-lambda": "^0.13.0",
+    "npm": "^2.13.1"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "mwpeterson",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gateway-church/infrastructure-static.git"
+  },
+  "bugs": {
+    "url": "https://github.com/gateway-church/infrastructure-static/issues"
+  },
+  "homepage": "https://github.com/gateway-church/infrastructure-static"
+}
