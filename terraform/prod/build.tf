@@ -83,7 +83,8 @@ phases:
       - bundle exec jekyll build
   post_build: 
     commands: 
-      - aws s3 sync --delete --cache-control max-age=604800 _site s3://${aws_s3_bucket.bucket.id}
+      - aws s3 sync --cache-control max-age=604800 --exclude 'buildspec.yml' --exclude 'sample.json' --exclude '*terraform.tfvars*' --exclude 'infrastructure/*' _site s3://${aws_s3_bucket.bucket.id} --delete 
+s3://testproject-static-prod --delete
 BUILDSPEC
 
     auth = {

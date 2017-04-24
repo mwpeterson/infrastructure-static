@@ -82,7 +82,7 @@ phases:
       - bundle exec jekyll build
   post_build: 
     commands: 
-      - aws s3 sync --delete --cache-control max-age=604800 _site s3://${aws_s3_bucket.bucket.id}
+      - aws s3 sync --cache-control max-age=604800 --exclude 'buildspec.yml' --exclude 'sample.json' --exclude '*terraform.tfvars*' --exclude 'infrastructure/*' _site s3://testproject-static-prod --delete
       - aws sns publish --topic-arn ${data.terraform_remote_state.global.codebuild_topic.arn} --subject '${var.project} deployed to ${var.environment}' --message "<https://console.aws.amazon.com/cloudwatch/home?region=$${AWS_REGION}#logStream:group=/aws/codebuild/${var.project}-${var.environment}|view logs>" 
 BUILDSPEC
   }
