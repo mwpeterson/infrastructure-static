@@ -34,6 +34,23 @@ resource "aws_cloudwatch_metric_alarm" "healthcheck_replica" {
   alarm_actions = ["${data.terraform_remote_state.global.healthcheck_alarm_topic.arn}"]
 }
 
+resource "random_id" "path" {
+  byte_length = 32
+}
+
+resource "aws_s3_bucket_object" "check" {
+  bucket        = "${aws_s3_bucket.bucket.id}"
+  key           = "check/${random_id.path.b64}/ok"
+  content       = "1"
+  acl           = "public-read"
+  cache_control = "no-cache, no-store"
+
+  tags = {
+    environment = "${var.environment}"
+    terraform   = true
+  }
+}
+
 resource "aws_route53_health_check" "bucket" {
   provider          = "aws.east1"
   fqdn              = "${aws_s3_bucket.bucket.bucket_domain_name}"
@@ -41,7 +58,7 @@ resource "aws_route53_health_check" "bucket" {
   port              = 80
   failure_threshold = 3
   request_interval  = 30
-  resource_path     = "/index.html"
+  resource_path     = "/${aws_s3_bucket_object.check.id}"
 
   tags = {
     environment = "${var.environment}"
@@ -56,7 +73,7 @@ resource "aws_route53_health_check" "replica" {
   port              = 80
   failure_threshold = 3
   request_interval  = 30
-  resource_path     = "/index.html"
+  resource_path     = "/${aws_s3_bucket_object.check.id}"
 
   tags = {
     environment = "${var.environment}"
