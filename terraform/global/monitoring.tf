@@ -26,6 +26,31 @@ resource "aws_iam_role" "failover" {
 EOF
 }
 
+resource "aws_iam_role_policy" "failover" {
+  name = "iam_role_policy_failover"
+  role = "${aws_iam_role.failover.id}"
+
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents",
+        "logs:DescribeLogStreams"
+    ],
+      "Resource": [
+        "arn:aws:logs:*:*:*"
+    ]
+  }
+ ]
+}
+EOF
+}
+
 resource "aws_lambda_function" "cf_s3_failover" {
   provider      = "aws.west2"
   function_name = "cf_s3_failover"
