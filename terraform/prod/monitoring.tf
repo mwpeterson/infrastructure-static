@@ -1,7 +1,16 @@
 resource "aws_cloudwatch_metric_alarm" "healthcheck_bucket" {
-  provider            = "aws.east1"
-  alarm_name          = "healthcheck-${aws_s3_bucket.bucket.id}-alarm"
-  alarm_description   = "{\"cloudfront_id\":\"${aws_cloudfront_distribution.distribution.id}\"}"
+  provider   = "aws.east1"
+  alarm_name = "healthcheck-${aws_s3_bucket.bucket.id}-alarm"
+
+  alarm_description = <<EOF
+{
+  "cloudfront_id": "${aws_cloudfront_distribution.distribution.id}",
+  "bucket_id": "${aws_s3_bucket.bucket.id}",
+  "replica_id": "${aws_s3_bucket.replica.id}",
+  "replica": false
+}
+EOF
+
   comparison_operator = "LessThanThreshold"
   evaluation_periods  = 15
   metric_name         = "HealthCheckStatus"
@@ -19,9 +28,18 @@ resource "aws_cloudwatch_metric_alarm" "healthcheck_bucket" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "healthcheck_replica" {
-  provider            = "aws.east1"
-  alarm_name          = "healthcheck-${aws_s3_bucket.replica.id}-alarm"
-  alarm_description   = "{\"cloudfront_id\":\"${aws_cloudfront_distribution.distribution.id}\"}"
+  provider   = "aws.east1"
+  alarm_name = "healthcheck-${aws_s3_bucket.replica.id}-alarm"
+
+  alarm_description = <<EOF
+{
+  "cloudfront_id": "${aws_cloudfront_distribution.distribution.id}",
+  "bucket_id": "${aws_s3_bucket.bucket.id}",
+  "replica_id": "${aws_s3_bucket.replica.id}",
+  "replica": true
+}
+EOF
+
   comparison_operator = "LessThanThreshold"
   evaluation_periods  = 3
   metric_name         = "HealthCheckStatus"
