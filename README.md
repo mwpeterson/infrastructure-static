@@ -41,7 +41,7 @@ You'll need Terraform installed.
 brew install terraform
 ```
 
-And each Terraform environment needs to be initialized with to store remote state
+And each Terraform environment needs to be initialized to store remote state
 
 ```shell
 project='the unique name of this static project'
