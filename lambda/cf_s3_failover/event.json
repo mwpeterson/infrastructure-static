@@ -1,21 +1,23 @@
 {
     "grunt": true,
-    "Records": [{
-        "EventSource": "aws:sns",
-        "EventVersion": "1.0",
-        "EventSubscriptionArn": "arn:aws:sns:us-west-2:177193921434:codebuild-topic:2f93970c-f759-4b49-91ba-8462d9fba5d9",
-        "Sns": {
-            "Type": "Notification",
-            "MessageId": "b1d7cd0e-c1de-5665-b6f4-9c6c9fb1a6b5",
-            "TopicArn": "arn:aws:sns:us-west-2:177193921434:codebuild-topic",
-            "Subject": "testproject-static deployed to test",
-            "Message": "<https://console.aws.amazon.com/cloudwatch/home?region=us-west-2#logStream:group=/aws/codebuild/testproject-static-stage|view logs>",
-            "Timestamp": "2017-04-08T03:42:39.995Z",
-            "SignatureVersion": "1",
-            "Signature": "CU7UOI7vEQmfrM8Q2mhOwSlV6P4kW+FmT9eFO72rGXOg2PWC1x+EFQFZw/RS29h18zFwVYpbA96M+u4+YkH/ty5kA7fZhQ1yIJo2xEe5RQbu2a8qIRgHHJKihWsnOLZctZf6PJi2KjFRECmXLjQhqTYiuasyqFesb9ZLtnVeljYyMJf0ValGx2Z3pqPQgFYQge0p7ESBxDpz+1+cAL9Fa2BxlS97Wnj15r1DUt2dL688aZKu/QSNZPdHnlTN//toLDQTOagxdmzZrdoRqDi6RD6LgEpfiV0MWwV23HsQ68Taf34QEK7dHNh6jNeV7GF8KH+SakEDQTBcOllNuTJK7A==",
-            "SigningCertUrl": "https://sns.us-west-2.amazonaws.com/SimpleNotificationService-b95095beb82e8f6a046b3aafc7f4149a.pem",
-            "UnsubscribeUrl": "https://sns.us-west-2.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:us-west-2:177193921434:codebuild-topic:2f93970c-f759-4b49-91ba-8462d9fba5d9",
-            "MessageAttributes": {}
+    "Records": [
+        {
+            "EventSource": "aws:sns",
+            "EventVersion": "1.0",
+            "EventSubscriptionArn": "arn:aws:sns:us-east-1:177193921434:healthcheck_alarm_topic:b2e82db4-d456-4894-bd23-b95eb581dc25",
+            "Sns": {
+                "Type": "Notification",
+                "MessageId": "b6a304cb-95ab-5576-b663-55b14d3ce9a9",
+                "TopicArn": "arn:aws:sns:us-east-1:177193921434:healthcheck_alarm_topic",
+                "Subject": "ALARM: \"healthcheck-testproject-static-prod-alarm\" in US East - N. Virginia",
+                "Message": "{\"AlarmName\":\"healthcheck-testproject-static-prod-alarm\",\"AlarmDescription\":null,\"AWSAccountId\":\"177193921434\",\"NewStateValue\":\"ALARM\",\"NewStateReason\":\"Threshold Crossed: 1 datapoint (0.0) was less than the threshold (1.0).\",\"StateChangeTime\":\"2017-04-26T17:18:15.687+0000\",\"Region\":\"US East - N. Virginia\",\"OldStateValue\":\"OK\",\"Trigger\":{\"MetricName\":\"HealthCheckStatus\",\"Namespace\":\"AWS/Route53\",\"StatisticType\":\"Statistic\",\"Statistic\":\"MINIMUM\",\"Unit\":null,\"Dimensions\":[{\"name\":\"HealthCheckId\",\"value\":\"bbe23606-29d3-43da-9e2c-fbe343553bc7\"}],\"Period\":60,\"EvaluationPeriods\":1,\"ComparisonOperator\":\"LessThanThreshold\",\"Threshold\":1.0,\"TreatMissingData\":\"\",\"EvaluateLowSampleCountPercentile\":\"\"}}",
+                "Timestamp": "2017-04-26T17:18:15.703Z",
+                "SignatureVersion": "1",
+                "Signature": "Jtoe1oN6Ai1/Oce2gtHj4LafCSIG12IJSyuO871QGxa3v7HcpselpZOWyUW1TXbNriY4YvkvNUzVb10QIwP/IQDpWWXHX0leV0V5DJnh7wch7Hrj3M8r0K+H9XaRpxxOPaVJ498JYrhuzxkkatxRC5wXd0IeavuTMP4vB3SqxE49n0DUJFqq/hOLCm0DsJXfKdr5HQ+Ji37gdKnh1uAw+mKZ3I3rOUJWbZ2mPosqv2xSVsUe1hxVjhLo6g6Nz9lvSE/6tekzJ033Vw952aInVEKokazI7gCYV6eS41ThIrYSdscGsnXJTH9tqgqQFFhmPrqEFvCV5Mk4YrCmXatFEw==",
+                "SigningCertUrl": "https://sns.us-east-1.amazonaws.com/SimpleNotificationService-b95095beb82e8f6a046b3aafc7f4149a.pem",
+                "UnsubscribeUrl": "https://sns.us-east-1.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:us-east-1:177193921434:healthcheck_alarm_topic:b2e82db4-d456-4894-bd23-b95eb581dc25",
+                "MessageAttributes": {}
+            }
         }
-    }]
+    ]
 }
