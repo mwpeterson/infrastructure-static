@@ -13,6 +13,11 @@ provider "aws" {
   region = "us-east-2"
 }
 
+provider "aws" {
+  alias  = "ireland"
+  region = "eu-west-1"
+}
+
 data "terraform_remote_state" "global" {
   backend = "s3"
 
