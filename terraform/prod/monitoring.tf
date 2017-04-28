@@ -1,7 +1,7 @@
 resource "aws_sns_topic" "healthcheck_alarm" {
   provider = "aws.east1"
 
-  name = "healthcheck-alarm-${aws_s3_bucket.bucket.id}"
+  name = "healthcheck-${aws_s3_bucket.bucket.id}-alarm"
 }
 
 resource "aws_cloudwatch_metric_alarm" "healthcheck_bucket" {
