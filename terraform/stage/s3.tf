@@ -34,6 +34,7 @@ resource "aws_s3_bucket" "bucket" {
 
   tags {
     environment = "${var.environment}"
+    project     = "${var.project}"
     terraform   = true
   }
 }

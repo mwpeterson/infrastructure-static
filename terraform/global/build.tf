@@ -78,7 +78,9 @@ resource "aws_s3_bucket" "codepipeline" {
   }
 
   tags {
-    terraform = true
+    environment = "global"
+    project     = "infrastructure-static"
+    terraform   = true
   }
 }
 

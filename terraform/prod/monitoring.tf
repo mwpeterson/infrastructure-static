@@ -53,6 +53,12 @@ resource "aws_s3_bucket_object" "check" {
     environment = "${var.environment}"
     terraform   = true
   }
+
+  tags {
+    environment = "${var.environment}"
+    project     = "${var.project}"
+    terraform   = true
+  }
 }
 
 resource "aws_route53_health_check" "bucket" {
@@ -64,8 +70,9 @@ resource "aws_route53_health_check" "bucket" {
   request_interval  = 30
   resource_path     = "/${aws_s3_bucket_object.check.id}"
 
-  tags = {
+  tags {
     environment = "${var.environment}"
+    project     = "${var.project}"
     terraform   = true
   }
 }
@@ -79,8 +86,9 @@ resource "aws_route53_health_check" "replica" {
   request_interval  = 30
   resource_path     = "/${aws_s3_bucket_object.check.id}"
 
-  tags = {
+  tags {
     environment = "${var.environment}"
+    project     = "${var.project}"
     terraform   = true
   }
 }

@@ -56,6 +56,7 @@ resource "aws_s3_bucket" "replica" {
 
   tags {
     environment = "${var.environment}"
+    project     = "${var.project}"
     terraform   = true
   }
 }
@@ -129,6 +130,7 @@ resource "aws_s3_bucket" "bucket" {
 
   tags {
     environment = "${var.environment}"
+    project     = "${var.project}"
     terraform   = true
   }
 }
