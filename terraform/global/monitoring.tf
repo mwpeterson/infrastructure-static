@@ -1,11 +1,3 @@
-resource "aws_lambda_permission" "cf_s3_failover_sns" {
-  statement_id  = "AllowExecutionFromSNS"
-  action        = "lambda:InvokeFunction"
-  function_name = "${aws_lambda_function.cf_s3_failover.arn}"
-  principal     = "sns.amazonaws.com"
-  source_arn    = "${aws_sns_topic.healthcheck_alarm.arn}"
-}
-
 resource "aws_iam_role" "failover" {
   name = "iam_for_failover_sns_lambda"
 
@@ -52,13 +44,22 @@ EOF
 }
 
 resource "aws_lambda_function" "cf_s3_failover" {
-  provider      = "aws.west2"
+  provider      = "aws.ireland"
   function_name = "cf_s3_failover"
   handler       = "index.handler"
   role          = "${aws_iam_role.failover.arn}"
   runtime       = "nodejs6.10"
-  filename      = "../../lambda/s3_failover/dist/cf_s3_failover_latest.zip"
+  filename      = "../../lambda/cf_s3_failover/dist/cf_s3_failover_latest.zip"
   publish       = true
+}
+
+resource "aws_lambda_permission" "cf_s3_failover_sns" {
+  provider      = "aws.ireland"
+  statement_id  = "AllowExecutionFromSNS"
+  action        = "lambda:InvokeFunction"
+  function_name = "${aws_lambda_function.cf_s3_failover.arn}"
+  principal     = "sns.amazonaws.com"
+  source_arn    = "${aws_sns_topic.healthcheck_alarm.arn}"
 }
 
 resource "aws_sns_topic" "healthcheck_alarm" {
