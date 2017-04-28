@@ -1,14 +1,14 @@
 resource "aws_cloudwatch_metric_alarm" "healthcheck_bucket" {
   provider            = "aws.east1"
   alarm_name          = "healthcheck-${aws_s3_bucket.bucket.id}-alarm"
-  alarm_description   = "{\"CF\":\"${aws_cloudfront_distribution.distribution.id}\"}"
+  alarm_description   = "{\"cloudfront_id\":\"${aws_cloudfront_distribution.distribution.id}\"}"
   comparison_operator = "LessThanThreshold"
   evaluation_periods  = 15
   metric_name         = "HealthCheckStatus"
   namespace           = "AWS/Route53"
   period              = 60
   statistic           = "Minimum"
-  threshold           = 15
+  threshold           = 1
 
   dimensions = {
     HealthCheckId = "${aws_route53_health_check.bucket.id}"
@@ -21,14 +21,14 @@ resource "aws_cloudwatch_metric_alarm" "healthcheck_bucket" {
 resource "aws_cloudwatch_metric_alarm" "healthcheck_replica" {
   provider            = "aws.east1"
   alarm_name          = "healthcheck-${aws_s3_bucket.replica.id}-alarm"
-  alarm_description   = "{\"CF\":\"${aws_cloudfront_distribution.distribution.id}\"}"
+  alarm_description   = "{\"cloudfront_id\":\"${aws_cloudfront_distribution.distribution.id}\"}"
   comparison_operator = "LessThanThreshold"
   evaluation_periods  = 3
   metric_name         = "HealthCheckStatus"
   namespace           = "AWS/Route53"
   period              = 60
   statistic           = "Minimum"
-  threshold           = 3
+  threshold           = 1
 
   dimensions = {
     HealthCheckId = "${aws_route53_health_check.replica.id}"
