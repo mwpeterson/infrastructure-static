@@ -4,6 +4,7 @@
   "description": "Switch Cloudfront distribution behavior to replica S3 in event of S3izure",
   "main": "index.js",
   "dependencies": {
+    "aws-sdk": "^2.47.0",
     "dotenv": "^4.0.0",
     "request": "^2.60.0"
   },
