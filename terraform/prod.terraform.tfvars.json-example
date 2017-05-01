@@ -1,0 +1,12 @@
+{
+    "_public_key": "64f402f6bc7ba379dd56c0331dc210c0ed1ae74af41ff1abf4bcf081ff6ce841",
+    "environment": "prod",
+    "github_project_url": "https://github.com/gateway-church/pinkimpact-static.git",
+    "github_oauth_token": "<generate one in github>",
+    "region": "us-west-2",
+    "replica_region": "us-east-2",
+    "project": "testproject-static",
+    "domain": "testproject.gatewaypeople.com",
+    "zone": "gatewaypeople.com",
+    "certificate_domain": "*.gatewaypeople.com"
+}

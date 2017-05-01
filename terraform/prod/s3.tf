@@ -1,40 +1,5 @@
-provider "aws" {
-  alias  = "west2"
-  region = "us-west-2"
-}
-
-provider "aws" {
-  alias  = "east1"
-  region = "us-east-1"
-}
-
-provider "aws" {
-  alias  = "east2"
-  region = "us-east-2"
-}
-
-resource "aws_iam_role" "replication" {
-  name = "tf-iam-role-replication-static"
-
-  assume_role_policy = <<POLICY
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Action": "sts:AssumeRole",
-      "Principal": {
-        "Service": "s3.amazonaws.com"
-      },
-      "Effect": "Allow",
-      "Sid": ""
-    }
-  ]
-}
-POLICY
-}
-
 resource "aws_iam_policy" "replication" {
-  name = "tf-iam-role-policy-replication-static"
+  name = "${var.project}-${var.environment}"
 
   policy = <<POLICY
 {
@@ -74,28 +39,31 @@ POLICY
 }
 
 resource "aws_iam_policy_attachment" "replication" {
-  name       = "tf-iam-role-attachment-replication-static"
-  roles      = ["${aws_iam_role.replication.name}"]
+  name       = "${var.project}-${var.environment}"
   policy_arn = "${aws_iam_policy.replication.arn}"
+  roles      = ["${data.terraform_remote_state.global.replication_role.id}"]
 }
 
 resource "aws_s3_bucket" "replica" {
-  provider = "aws.east2"
-  bucket   = "${var.repo}-${var.env}-replica"
+  provider      = "aws.east2"
+  bucket        = "${var.project}-${var.environment}-replica"
+  acl           = "private"
+  force_destroy = true
 
   versioning {
     enabled = true
   }
 
   tags {
-    env       = "${var.env}"
-    terraform = true
+    environment = "${var.environment}"
+    terraform   = true
   }
 }
 
 resource "aws_s3_bucket_policy" "replica" {
   provider = "aws.east2"
-  bucket = "${aws_s3_bucket.replica.id}"
+  bucket   = "${aws_s3_bucket.replica.id}"
+
   policy = <<POLICY
 {
   "Version": "2008-10-17",
@@ -105,7 +73,7 @@ resource "aws_s3_bucket_policy" "replica" {
           "Sid": "1",
           "Effect": "Allow",
           "Principal": {
-              "AWS": "arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity E1CLQXHBGWI67M"
+              "AWS": "${aws_cloudfront_origin_access_identity.origin_access.iam_arn}"
           },
           "Action": "s3:GetObject",
           "Resource": "arn:aws:s3:::${aws_s3_bucket.replica.id}/*"
@@ -116,9 +84,10 @@ POLICY
 }
 
 resource "aws_s3_bucket" "bucket" {
-  provider = "aws.west2"
-  bucket   = "${var.repo}-${var.env}"
-  acl      = "private"
+  provider      = "aws.west2"
+  bucket        = "${var.project}-${var.environment}"
+  acl           = "private"
+  force_destroy = true
 
   versioning {
     enabled = true
@@ -145,10 +114,10 @@ resource "aws_s3_bucket" "bucket" {
   }
 
   replication_configuration {
-    role = "${aws_iam_role.replication.arn}"
+    role = "${data.terraform_remote_state.global.replication_role.arn}"
 
     rules {
-      id     = "${var.repo}-${var.env}"
+      id     = "${var.project}-${var.environment}"
       prefix = ""
       status = "Enabled"
 
@@ -159,14 +128,15 @@ resource "aws_s3_bucket" "bucket" {
   }
 
   tags {
-    env       = "${var.env}"
-    terraform = true
+    environment = "${var.environment}"
+    terraform   = true
   }
 }
 
 resource "aws_s3_bucket_policy" "bucket" {
   provider = "aws.west2"
-  bucket = "${aws_s3_bucket.bucket.id}"
+  bucket   = "${aws_s3_bucket.bucket.id}"
+
   policy = <<POLICY
 {
   "Version": "2008-10-17",
@@ -176,7 +146,7 @@ resource "aws_s3_bucket_policy" "bucket" {
           "Sid": "1",
           "Effect": "Allow",
           "Principal": {
-              "AWS": "arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity E1CLQXHBGWI67M"
+              "AWS": "${aws_cloudfront_origin_access_identity.origin_access.iam_arn}"
           },
           "Action": "s3:GetObject",
           "Resource": "arn:aws:s3:::${aws_s3_bucket.bucket.id}/*"
@@ -185,4 +155,3 @@ resource "aws_s3_bucket_policy" "bucket" {
 }
 POLICY
 }
-

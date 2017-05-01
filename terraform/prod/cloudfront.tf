@@ -1,32 +1,32 @@
-data "aws_acm_certificate" "pinkimpact" {
+data "aws_acm_certificate" "certificate" {
   provider = "aws.east1"
-  domain   = "pinkimpact.com"
+  domain   = "${var.certificate_domain}"
 }
 
 resource "aws_cloudfront_origin_access_identity" "origin_access" {
   comment = "access-identity-s3"
 }
 
-resource "aws_cloudfront_distribution" "pinkimpact" {
+resource "aws_cloudfront_distribution" "distribution" {
   origin {
     domain_name = "${aws_s3_bucket.bucket.bucket_domain_name}"
-    origin_id   = "${var.repo}-${var.env}"
+    origin_id   = "${var.project}-${var.environment}"
 
     s3_origin_config {
-      origin_access_identity = "origin-access-identity/cloudfront/E1CLQXHBGWI67M"
+      origin_access_identity = "${aws_cloudfront_origin_access_identity.origin_access.cloudfront_access_identity_path}"
     }
   }
 
   origin {
     domain_name = "${aws_s3_bucket.replica.bucket_domain_name}"
-    origin_id   = "${var.repo}-${var.env}-replica"
+    origin_id   = "${var.project}-${var.environment}-replica"
 
     s3_origin_config {
-      origin_access_identity = "origin-access-identity/cloudfront/E1CLQXHBGWI67M"
+      origin_access_identity = "${aws_cloudfront_origin_access_identity.origin_access.cloudfront_access_identity_path}"
     }
   }
 
-  aliases             = ["s3-dev.pinkimpact.com"]
+  aliases             = ["${var.domain}"]
   enabled             = true
   is_ipv6_enabled     = true
   default_root_object = "index.html"
@@ -35,7 +35,7 @@ resource "aws_cloudfront_distribution" "pinkimpact" {
   default_cache_behavior {
     allowed_methods  = ["GET", "HEAD"]
     cached_methods   = ["GET", "HEAD"]
-    target_origin_id = "${var.repo}-${var.env}"
+    target_origin_id = "${var.project}-${var.environment}"
 
     forwarded_values {
       query_string = false
@@ -60,12 +60,12 @@ resource "aws_cloudfront_distribution" "pinkimpact" {
   }
 
   tags {
-    env       = "${var.env}"
-    terraform = true
+    environment = "${var.environment}"
+    terraform   = true
   }
 
   viewer_certificate {
-    acm_certificate_arn      = "${data.aws_acm_certificate.pinkimpact.arn}"
+    acm_certificate_arn      = "${data.aws_acm_certificate.certificate.arn}"
     minimum_protocol_version = "TLSv1"
     ssl_support_method       = "sni-only"
   }
