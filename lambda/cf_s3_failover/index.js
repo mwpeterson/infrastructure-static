@@ -1,6 +1,7 @@
 require('dotenv').load(); // load environment variables
 AWS = require('aws-sdk'); // for talking to AWS
 var cloudfront = new AWS.CloudFront();
+var cloudwatch = new AWS.CloudWatch({ region: 'us-east-1' });
 
 exports.handler = function(event, context, callback) {
     context.callbackWaitsForEmptyEventLoop = false; 
@@ -13,10 +14,8 @@ exports.handler = function(event, context, callback) {
     // Yes, it's a hack
     var alarm = JSON.parse(message.AlarmDescription);
     var cloudfront_id = alarm.cloudfront_id; // cloudfront distribution id
-    var replica = alarm.replica; // true if replica bucket
-    var bucket_id = alarm.bucket_id; // id of master bucket
-    var replica_id = alarm.replica_id; // id of replica bucket 
-	var this_bucket = replica ? replica_id : bucket_id;
+    var this_bucket = alarm.replica ? alarm.replica_id : alarm.bucket_id; // find current bucket by value of replica
+    var other_bucket = alarm.replica ? alarm.bucket_id : alarm.replica_id; // find the other bucket by value of replica
     // code logic:
     //  get cloudfront config
     //  if state is ALARM
@@ -30,30 +29,95 @@ exports.handler = function(event, context, callback) {
     //  else ignore insufficient_data state
     cloudfront.getDistributionConfig({
         Id: alarm.cloudfront_id
-    }, function(err, data) {
-        if (err) {
-            console.error(err, err.stack);
-            callback(err.stack);
-            return;
-        }
-		var current_origin = data.DefaultCacheBehavior.TargetOriginId;
-		switch(state)
-		{
-		case "ALARM":
-			if ( current_origin == this_bucket ) {
-				console.log("updating");
+    }, updateDistribution);
+	
+    function updateDistribution (err, data) {
+	if (err) {
+	    console.error(err, err.stack);
+	    callback(err.stack);
+	    return;
+	}
+	var current_origin = data.DefaultCacheBehavior.TargetOriginId;
+	console.log(state,current_origin,this_bucket,alarm.replica);
+	switch(state)
+	{
+	    case "ALARM":
+		console.log('case ALARM');
+		if ( data.DefaultCacheBehavior.TargetOriginId == this_bucket ) {
+		    console.log("if this_bucket: " + this_bucket);
+		    cloudwatch.describeAlarms({
+			AlarmNames: [ "healthcheck-" + other_bucket + "-alarm" ]
+		    }, function(err,check) {
+			console.log("err: " + JSON.stringify(err));
+			console.log("check: " + JSON.stringify(check));
+			if (err) {
+			    console.error(err, err.stack);
+			    callback(err.stack);
+			    return;
 			}
-			break;
-		case "OK":
-			if ( ! replica ) {
-				if ( current_origin != this_bucket ) {
-					console.log("updating");
+			if ( check.MetricAlarms[0].StateValue == 'OK' ) {
+			    data.DefaultCacheBehavior.TargetOriginId = other_bucket;
+			    data.IfMatch = data.ETag;
+			    delete data.ETag;
+			    cloudfront.updateDistributionConfig({
+				Id: alarm.cloudfront_id,
+				DistributionConfig: data
+			    }, function(err,data) {
+				if (err) {
+				    console.error(err, err.stack);
+				    callback(err.stack);
+				    return;
 				}
-			}	
-			break;
-		default:
-        }
-        callback(null);
-        return;
-    }); 
+				console.log(
+				    data.Distribution.Id,
+				    data.Distribution.Status,
+				    data.Distribution.LastModifiedTime
+				);
+				callback(null);
+				return;
+			    });
+			} else {
+			    console.log(other_bucket + " is " + check.MetricAlarms[0].StateValue);
+			}
+			callback(null);
+			return;
+		    });
+		    console.log('end if');
+		    callback(null);
+		    return;
+		}
+		console.log('end case ALARM');
+		break;
+	    case "OK":
+		if ( ! alarm.replica ) {
+		    if ( data.DefaultCacheBehavior.TargetOriginId != this_bucket ) {
+			data.DefaultCacheBehavior.TargetOriginId = this_bucket;
+			data.IfMatch = data.ETag;
+			delete data.ETag;
+			cloudfront.updateDistributionConfig({
+			    Id: alarm.cloudfront_id,
+			    DistributionConfig: data
+			}, function(err,data) {
+			    if (err) {
+				console.error(err, err.stack);
+				callback(err.stack);
+				return;
+			    }
+			    console.log(
+				data.Distribution.Id,
+				data.Distribution.Status,
+				data.Distribution.LastModifiedTime
+			    );
+			    callback(null);
+			    return;
+			});
+		    }
+		}	
+		break;
+	    default:
+		// ignore INSUFFICIENT_DATA state
+	}
+	callback(null);
+	return;
+    }; 
 };
