@@ -70,7 +70,7 @@ resource "aws_codebuild_project" "project" {
     type = "CODEPIPELINE"
 
     buildspec = <<BUILDSPEC
-version: 0.1
+version: 0.2
 
 phases: 
   install: 

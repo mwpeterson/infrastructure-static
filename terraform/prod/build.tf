@@ -71,7 +71,7 @@ resource "aws_codebuild_project" "project" {
     location = "${var.github_project_url}"
 
     buildspec = <<BUILDSPEC
-version: 0.1
+version: 0.2
 
 phases: 
   install: 
