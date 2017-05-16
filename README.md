@@ -50,16 +50,17 @@ project='the unique name of this static project'
 (cd infrastructure/terraform/prod; terraform init -backend-config "key=$project/prod")
 ```
 
-### ecfg
+### ejson
 
-[ecfg](https://github.com/Shopify/ecfg) is used to encrypt secrets stored in Terraform's tfvars files. 
+[ejson](https://github.com/Shopify/ejson) is used to encrypt secrets stored in Terraform's tfvars files. 
 
 ```shell
-brew install shopify/shopify/ecfg
-mkdir -p $HOME/.ecfg/keys
+brew install ejson
+mkdir -p $HOME/.ejson/keys
+export EJSON_KEYDIR=$HOME/.ejson/keys # add to your ~/.bash_profile too!
 ```
 
-Contact DevOps for the ecfg key and copy it to `$HOME/.ecfg/keys`
+Contact DevOps for the ejson key and copy it to `$HOME/.ejson/keys`
 
 ### Add .gitignore to the .gitignore for this static site
 
@@ -69,12 +70,12 @@ cat infrastructure/.gitignore >> .gitignore
 
 ## Configuring Terraform for this static site
 
-You'll need a terraform.tfvars.json file for each environment. They needed to be encrypted with ecfg. `infrastructure-static` expects to find `prod.terraform.tfvars.ecfg.json` and `stage.terraform.tfvars.ecfg.json` in root of this static site project. Example unencrypted files can be found in `infrastructure/terraform`.
+You'll need a terraform.tfvars.json file for each environment. They needed to be encrypted with ejson. `infrastructure-static` expects to find `prod.terraform.tfvars.ejson` and `stage.terraform.tfvars.ejson` in root of this static site project. Example unencrypted files can be found in `infrastructure/terraform`.
 
 ```shell
 for f in infrastructure/terraform/*-example ; do g=$(echo $f| sed -e s:-example:: -e s:.*terraform/::); cp $f $g; done
-# edit the prod.terraform.tfvars.ecfg.json and stage.terraform.tfvars.ecfg.json files
-for f in *.tfvars.json; do ecfg encrypt $f; g=$(echo $f | sed 's:.json:.ecfg.json:'); mv $f $g; done
+# edit the prod.terraform.tfvars.ejson and stage.terraform.tfvars.ejson files
+for f in *.tfvars.json; do ejson encrypt $f; g=$(echo $f | sed 's:.json:.ejson:'); mv $f $g; done
 ```
 
 ## Building
@@ -84,7 +85,7 @@ To build `stage` or `prod`
 ```shell
 environment=stage # or environment=prod
 cd infrastructure/terraform/$environment
-ecfg decrypt terraform.tfvars.ecfg.json > terraform.tfvars.json
+ejson decrypt terraform.tfvars.ejson > terraform.tfvars.json
 terraform plan -out plan
 # review the plan terraform will execute
 terraform apply plan
@@ -103,5 +104,5 @@ If terraform prompts for variables, abort the operation and review the settings 
 To contribute, please fork the repository and use a feature branch. Pull requests are warmly welcome.
 
 ## TODO
-- Automate ecfg steps with a [Makefile](https://mtpereira.com/terraform-ejson.html)
+- Automate ejson steps with a [Makefile](https://mtpereira.com/terraform-ejson.html)
 
