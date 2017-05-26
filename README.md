@@ -10,7 +10,7 @@ Provision and deploy static websites to AWS. Use [Terraform](https://www.terrafo
 ### Setup the subtree
 
 ```shell
-git remote add -f infrastructure https://github.com/gateway-church/infrastructure-static.git
+git remote add -f infrastructure https://github.com/mwpeterson/infrastructure-static.git
 git subtree add --prefix infrastructure infrastructure master --squash
 ```
 
@@ -26,7 +26,7 @@ From time to time, update the subtree to pull in changes, bugfixes, and new feat
 ## Developing
 
 ### AWS
-You'll need an AWS account and security credentials. Talk to the DevOps team if needed.
+You'll need an AWS account and security credentials.
 
 ```shell
 brew install awscli
@@ -60,7 +60,6 @@ mkdir -p $HOME/.ejson/keys
 export EJSON_KEYDIR=$HOME/.ejson/keys # add to your ~/.bash_profile too!
 ```
 
-Contact DevOps for the ejson key and copy it to `$HOME/.ejson/keys`
 
 ### Add .gitignore to the .gitignore for this static site
 
